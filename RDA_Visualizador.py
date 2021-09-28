@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[23]:
-
-
 '''
 Code for Python 3
 
@@ -12,14 +9,14 @@ from tkinter import *
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
-#import pandas as pd
+#import pandas as pd #TIRAR SE TIVER RODANDO FORA DO JUPYTER
 import csv
 import re
 import matplotlib.pyplot as plt
 
 root= tk.Tk()
 
-canvas1 = tk.Canvas(root, width = 400, height = 500, bg = 'lightsteelblue2', relief = 'raised')
+canvas1 = tk.Canvas(root, width = 400, height = 600, bg = 'lightsteelblue2', relief = 'raised')
 canvas1.pack()
 label1 = tk.Label(root, text='Tratamento dos dados', bg = 'lightsteelblue2')
 label1.config(font=('helvetica', 20))
@@ -29,6 +26,7 @@ canvas1.create_window(200, 60, window=label1)
 def getTxtRDA ():
 
     global flowVector1
+    global volumeVector
     import_file_path = filedialog.askopenfilename()
     f1 = open(import_file_path, 'r')
     contents_f1 = f1.read()
@@ -50,18 +48,30 @@ def getTxtRDA ():
         else:
             measure += str(contents_f1[x])
     flowVector1.append(float(measure))
-            
     
-
+    volumeVector = list()
+    start = info2_f1.end()+5
+    stop = info3_f1.start()-3
+    measure = str()
+    # for x in range(start, stop, 1):
+    # 	print(x)
+    for x in range(start, stop, 1):
+        if contents_f1[x] == ',':
+            volumeVector.append(float(measure))		
+            measure = str()
+        else:
+            measure += str(contents_f1[x])
+    volumeVector.append(float(measure))
+            
     #PLOT
-    # tamanhoAmostra = len(flowVector1)
-    # tempo = list()
-    # segundo = 0.0
-    # for y in range(tamanhoAmostra):
-    #     segundo = segundo + 0.02
-    #     tempo.append(segundo)
-    # plt.plot(tempo, flowVector1)
-    # plt.show()
+    tamanhoAmostra = len(flowVector1)
+    tempo = list()
+    segundo = 0.0
+    for y in range(tamanhoAmostra):
+        segundo = segundo + 0.02
+        tempo.append(segundo)
+    plt.plot(tempo, flowVector1)
+    plt.show()
 
 
 browseButtonTxtRDA= tk.Button(text="Importar RDA(.TXT)", command=getTxtRDA, bg='green', fg='white', font=('helvetica', 12, 'bold'))
@@ -80,7 +90,7 @@ def convertToTxtRDA ():
     negSequences = list()
 
     #SEPARA INSPIRAÇÃO DE EXPIRAÇÃO
-    while (dataCounter<(len(flowVector1)+sampleInterval)):
+    while (dataCounter<len(flowVector1)):
         
         posCounter = 0
         negCounter = 0
@@ -186,8 +196,26 @@ def convertToTxtRDA ():
     #FREQUENCIA MEDIA
     frequencia = len(posSequences)/(len(flowVector1)*0.02)
     frequencia = frequencia * 60
+    
+    #CALCULA VOLUME INSPIRATORIO MEDIO E VOLUME EXPIRATORIO MEDIO
+    volumeIns = 0.0
+    volumeExp = 0.0
+    y = volumeVector[0]
+    TempoIns = 0.0
+    TempoExp = 0.0
+    for x in volumeVector:
+        if (x - y) < 0:
+            volumeExp = volumeExp + x
+            TempoExp = TempoExp + 0.02
+        elif (x - y) > 0:
+            volumeIns = volumeIns + x
+            TempoIns = TempoIns + 0.02
+        y = x
+    
+    volumeExp = volumeExp/TempoExp
+    volumeIns = volumeIns/TempoIns
 
-    #calcula I:E
+    #calcula I:E, FLUXO POSITIVO MEDIO E FLUXO NEGATIVO MEDIO
     valoresPositivos= list()
     valoresNegativos= list()
     somaPositivos = 0
@@ -215,12 +243,17 @@ def convertToTxtRDA ():
     textoTIns= tk.Label(text="Tempo inspiratorio medio : "+ str(tempoIns) , bg='green', fg='white', font=('helvetica', 12, 'bold'))
     textoTExp= tk.Label(text="Tempo expiratorio medio : "+ str(tempoExp) , bg='green', fg='white', font=('helvetica', 12, 'bold'))
     textoF= tk.Label(text="Frequencia media : "+ str(frequencia) , bg='green', fg='white', font=('helvetica', 12, 'bold'))
+    textoVI= tk.Label(text="Volume inspiratorio medio : "+ str(volumeIns) , bg='green', fg='white', font=('helvetica', 12, 'bold'))
+    textoVE= tk.Label(text="Volume expiratorio medio: "+ str(volumeExp) , bg='green', fg='white', font=('helvetica', 12, 'bold'))
+
     canvas1.create_window(200, 370, window=textoFPM)
     canvas1.create_window(200, 390, window=textoFNM)
     canvas1.create_window(200, 410, window=textoIE)
     canvas1.create_window(200, 430, window=textoTIns)
     canvas1.create_window(200, 450, window=textoTExp)
     canvas1.create_window(200, 470, window=textoF)
+    canvas1.create_window(200, 490, window=textoVI)
+    canvas1.create_window(200, 510, window=textoVE)
     canvas1.pack()
         #obs: Ele esta colocando um por cima do outro, não sei resolver
 
@@ -247,6 +280,4 @@ exitButton = tk.Button (root, text='  Encerrar  ',command=exitApplication, bg='b
 canvas1.create_window(200, 230, window=exitButton)
 
 root.mainloop()
-
-
 
