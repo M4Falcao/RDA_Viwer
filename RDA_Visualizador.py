@@ -54,14 +54,14 @@ def getTxtRDA ():
     
 
     #PLOT
-    tamanhoAmostra = len(flowVector1)
-    tempo = list()
-    segundo = 0.0
-    for y in range(tamanhoAmostra):
-        segundo = segundo + 0.02
-        tempo.append(segundo)
-    plt.plot(tempo, flowVector1)
-    plt.show()
+    # tamanhoAmostra = len(flowVector1)
+    # tempo = list()
+    # segundo = 0.0
+    # for y in range(tamanhoAmostra):
+    #     segundo = segundo + 0.02
+    #     tempo.append(segundo)
+    # plt.plot(tempo, flowVector1)
+    # plt.show()
 
 
 browseButtonTxtRDA= tk.Button(text="Importar RDA(.TXT)", command=getTxtRDA, bg='green', fg='white', font=('helvetica', 12, 'bold'))
@@ -70,7 +70,7 @@ canvas1.create_window(200, 130, window=browseButtonTxtRDA)
 
 def convertToTxtRDA ():
     dataCounter = 0
-    sampleInterval = 20 #numero de amostras vista em cada passo
+    sampleInterval = 0 #numero de amostras vista em cada passo
 
     flagPos = True # Positive Number
     flagNeg = False
@@ -247,16 +247,6 @@ exitButton = tk.Button (root, text='  Encerrar  ',command=exitApplication, bg='b
 canvas1.create_window(200, 230, window=exitButton)
 
 root.mainloop()
-
-
-# In[19]:
-
-
-
-
-
-# In[ ]:
-
 
 
 
